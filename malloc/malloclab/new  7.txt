@@ -1,0 +1,71 @@
+static void *coalesce(void *bp) 
+{
+	void * newBp = bp;//stores the initial to return and manipule in the if else statements
+	//this is written based on bp being given pointing to the top of the header of the newly freed element
+	bp = bp - 8;//at the footer of previous element
+	struct allocated_block_header *previousFooter = (struct allocated_block_header *)bp;
+	bp = bp - previousFooter->size + sizeof(struct allocated_block_header );//should now be at the header of previous element
+	struct allocated_block_header *previousHeader = (struct allocated_header *)bp;
+	bp = bp + previousFooter->size - sizeof(struct allocated_block_header);//moves the pointer bp back to pointing at the footer of previous element
+	
+	int prev = previousFooter->padding[0] == '0'; // if its true then it is 1
+	bp = bp + 8;//moves back to header of given element
+	struct allocated_block_header *current = (struct allocated_block_header *)bp;
+	size_t currentSize = current->size;
+	bp = bp + currentSize;//moves the pointer to the header of the next element
+	struct allocated_block_header *nextHeader = (struct allocated_block_header *)bp;
+	int next = nextHeader->padding[0]=='0';
+	
+	
+    //int prev = FTRP(PREV_BLKP(bp)).padding[0] == '1';
+    //int next = HDRP(NEXT_BLKP(bp)).padding[0] == '1';
+	//int prev //1 true if the padding is 1, 0 if the padding is false
+	//int next //1 true if the padding is 1, 0 if the padding is false
+    //size_t size = GET_SIZE(HDRP(bp));
+
+    if (next && prev) {            //when nothing needs to change, when both neigbors are not free
+		return newBp;
+    }
+
+    else if (prev && !next) {     //when the right neighbor is free
+		currentSize = currentSize + nextHeader->size;
+		bp = bp + nextHeader->size - sizeof(struct allocated_block_header);//this needs to move bp to the footer so that its size can be reset
+		current->size = currentSize;//set header size
+		struct allocated_block_header *nextFooter = (struct allocated_block_header *)bp;//set footer size
+		nextFooter->size = currentSize;
+		
+	
+		//size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
+		//PUT(HDRP(bp), PACK(size, 0));
+		//PUT(FTRP(bp), PACK(size,0));
+    }
+
+    else if (!prev && next) {      //when the left neighbor is free
+		currentSize = currentSize + previousHeader->size;
+		
+		bp = bp - sizeof(struct allocated_bloch_header);
+		struct allocated_block_header *currentFooter = (struct allocated_block_header *)bp;
+		currentFooter->size = currentSize;
+		previousHeader->size = currentSize;
+	
+		
+		//PUT(FTRP(bp), PACK(size, 0));
+		//PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+		//bp = PREV_BLKP(bp);
+    }
+
+    else {                                    //when both the left and right neighbors are free
+		currentSize = currentSize + previousHeader->size + nextHeader->size;
+		previousHeader->size = currentSize;
+		nextFooter->size = currentSize;
+		
+		
+		//size += GET_SIZE(HDRP(PREV_BLKP(bp))) + 
+		//	GET_SIZE(FTRP(NEXT_BLKP(bp)));
+		//PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+		//PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
+		//bp = PREV_BLKP(bp);
+    }
+
+    return newBp;
+}

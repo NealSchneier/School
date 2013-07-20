@@ -1,0 +1,48 @@
+  new pointer to new area
+ there is a pointer to the new element, and the size 
+  
+ void *oldptr, size_t size 
+  
+	int aligned = roundup(size);
+	int newsize = roundup(size + 2 * sizeof(struct allocated_block_header)); // 
+	
+	
+	
+	//need to align the size so that it includes the headers and footers
+  /* If size == 0 then this is just free, and we return NULL. */
+    if(size == 0) {
+		mm_free(oldptr);
+		return 0;
+    }
+
+    /* If oldptr is NULL, then this is just malloc. */
+    if(oldptr == NULL) {
+		return mm_malloc(size);
+    }
+	
+	newptr = mm_malloc(size);//this gives you a pointer to the new area when necessary, 
+	
+	first case - current size of pointer is the same size as given, in which case it just returns a pointer to the padding
+	second case - new size is less then the old size,
+		footer written
+		new free block written with header, list elem and footer
+		coalasce
+	
+	third case - new size is larger and needs to take from the next free block
+		new footer written, 
+		next free block is adjusted
+	
+	fourth case - new size is larger and the data needs to be moved to a new area
+		write header, copy data, writer footer, 
+		free old block
+		
+		
+	
+		
+	check if the size of the current block cannot be increased
+	else 
+	find a new block for the given size
+	
+	copy data over up to the size
+	
+	free the block if necessary

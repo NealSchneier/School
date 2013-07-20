@@ -1,0 +1,11 @@
+Author: group145
+-------------------------------------------------------------------
+Takes your height in feet and inches, and converts it to centimeters.
+The first input is the number of feet, and the second is the number
+of inches.
+
+Plug-in name: height
+
+esh> height 5 9
+
+Your height in centimeters is 175.26.

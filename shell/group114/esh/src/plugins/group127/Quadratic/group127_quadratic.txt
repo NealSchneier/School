@@ -1,0 +1,6 @@
+@author marknach+panta
+@Test to run the tests, use ./quadtest.py output.py
+Takes an input of three numbers, a, b, c and solves the quadratic equation ax^2 + bx + c = 0
+
+esh> quadratic 1 5 6
+quadratic returned  -2.00 and -3.00

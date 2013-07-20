@@ -1,0 +1,555 @@
+/*
+ * mm-naive.c - The fastest, least memory-efficient malloc package.
+ * 
+ * In this naive approach, a block is allocated by simply incrementing
+ * the brk pointer.  Only a header is stored with the size to allow
+ * for realloc() to retrieve the block size.  Blocks are never coalesced 
+ * or reused in this naive implementation. Realloc is
+ * implemented directly using mm_malloc and mm_free.
+ *
+ * NOTE TO STUDENTS: Replace this header comment with your own header
+ * comment that gives a high level description of your solution.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <unistd.h>
+#include <string.h>
+#include <stddef.h>
+
+#include "list.h"
+#include "mm.h"
+#include "memlib.h"
+#include "config.h"             /* defines ALIGNMENT */
+
+/* Basic constants and macros */
+#define WSIZE       4       /* Word and header/footer size (bytes) */ //line:vm:mm:beginconst
+#define DSIZE       8       /* Doubleword size (bytes) */
+#define CHUNKSIZE  (1<<12)  /* Extend heap by this amount (bytes) */  //line:vm:mm:endconst 
+#define MIN_BLOCK_SIZE_WORDS 4 /* Minimum block size in words */
+#define MAX(x, y) ((x) > (y)? (x) : (y))  
+
+/* Pack a size and allocated bit into a word */
+#define PACK(size, alloc)  ((size) | (alloc)) //line:vm:mm:pack
+
+/* Read and write a word at address p */
+#define GET(p)       (*(unsigned int *)(p))            //line:vm:mm:get
+#define PUT(p, val)  (*(unsigned int *)(p) = (val))    //line:vm:mm:put
+
+/* Read the size and allocated fields from address p */
+#define GET_SIZE(p)  (GET(p) & ~0x7)                   //line:vm:mm:getsize
+#define GET_ALLOC(p) (GET(p) & 0x1)                    //line:vm:mm:getalloc
+
+/* Given block ptr bp, compute address of its header and footer */
+#define HDRP(bp)       ((char *)(bp) - WSIZE)                      //line:vm:mm:hdrp
+#define FTRP(bp)       ((char *)(bp) + GET_SIZE(HDRP(bp)) - DSIZE) //line:vm:mm:ftrp
+
+/* Given block ptr bp, compute address of next and previous blocks */
+#define NEXT_BLKP(bp)  ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE))) //line:vm:mm:nextblkp
+#define PREV_BLKP(bp)  ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE))) //line:vm:mm:prevblkp
+
+
+struct list freelist;
+static struct list_elem *removeElem(struct list_elem *removedElem);
+void * find_next_free(size_t size);
+static void *coalesce(void *bp);
+long allocated_size = 0;
+int listsize = 0;
+//void place (struct free_block *free, size_t size);
+/*********************************************************
+ * NOTE TO STUDENTS: Before you do anything else, please
+ * provide your team information in the following struct.
+ ********************************************************/
+team_t team = {
+    /* Team name */
+    "group114",
+    /* First member's full name */
+    "Neal Schneier",
+    /* First member's SLO (@cs.vt.edu) email address */
+    "neal89",
+    /* Second member's full name (leave blank if none) */
+    "Michael Chao",
+    /* Second member's SLO (@cs.vt.edu) email address (leave blank if none) */
+    "mchao8"
+};
+
+
+
+/* 
+ * If size is a multiple of ALIGNMENT, return size.
+ * Else, return next larger multiple of ALIGNMENT:
+ * (size/ALIGNMENT + 1) * ALIGNMENT
+ * Does so without requiring integer division, assuming
+ * ALIGNMENT is a power of 2.
+ */
+static size_t roundup(size_t size)
+{
+   return (size + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
+}
+
+/* 
+ * This C struct captures an allocated header.
+ *
+ * By casting a memory location to a pointer to a allocated_block_header,
+ * we are able to treat a part of memory as if a header had been allocated
+ * in it.
+ *
+ * Note: you should never define instances of 'struct allocated_block_header' -
+ *       all accesses will be through pointers.
+ */
+struct allocated_block_header {
+    size_t      size;
+    
+    /* 
+     * Zero length arrays do not add size to the structure, they simply
+     * provide a syntactic form to refer to a char array following the
+     * structure.
+     * See http://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+     *
+     * The 'aligned' attribute forces 'payload' to be aligned at a
+     * multiple of alignment, counted from the beginning of the struct
+     * See http://gcc.gnu.org/onlinedocs/gcc/Variable-Attributes.html
+     */
+    char        payload[0] __attribute__((aligned(ALIGNMENT)));    
+};
+/*
+ * The struct that contains the whole block.
+ */
+struct allocated_block {
+    struct allocated_block_header head;
+    
+    char padding[0];
+};
+
+/**
+ * The free list struct
+ */ 
+struct free_block {
+    struct allocated_block_header head;
+    struct list_elem elem;
+}; 
+/* 
+ * mm_init - initialize the malloc package.
+ */
+int mm_init(void)
+{
+    /* Sanity checks. */
+    assert((ALIGNMENT & (ALIGNMENT - 1)) == 0); // power of 2
+    assert(sizeof(struct allocated_block_header) == ALIGNMENT);
+    assert(offsetof(struct allocated_block_header, size) == 0);
+    assert(offsetof(struct allocated_block_header, payload) % ALIGNMENT == 0);
+    list_init(&freelist);
+    allocated_size = 0;
+	void * free = mem_sbrk(roundup(CHUNKSIZE));
+  	//struct free_block * heap = (struct free_block *)free; 
+	//headers
+    	struct allocated_block_header * heapHead = (struct allocated_block_header *) free;
+	heapHead->payload[0] = '0';
+	heapHead->size = roundup(CHUNKSIZE);
+	
+	//move the free pointer to the list elem.
+	free = free + sizeof(struct allocated_block_header);
+
+	//This adds in the list element.
+	struct list_elem * elems = (struct list_elem *) free;
+	list_push_back(&freelist, elems);
+	
+	//the footer
+	free = free + roundup(CHUNKSIZE) - sizeof(struct allocated_block_header) - sizeof(struct list_elem);
+	struct allocated_block_header *heapFoot = (struct allocated_block_header *)free;
+	heapFoot->size = roundup(CHUNKSIZE);
+	heapFoot->payload[0] = '0';
+    	//list_push_back(&freelist, &(heap->elem)); 
+	listsize= 1;
+    printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+   	// printf("INIT list size %d\n", list_size(&freelist));
+	return 0;
+}
+
+/* 
+ * mm_malloc - Allocate a block by incrementing the brk pointer.
+ *     Always allocate a block whose size is a multiple of the alignment.
+ */
+void *mm_malloc(size_t size)
+{
+	struct list_elem *lElement;
+	//printf("allocated header %d\n", sizeof(struct allocated_block_header));
+	//printf("free %d\n", sizeof(struct free_block));
+	//printf("allocated %d\n", sizeof(struct allocated_block));
+	//printf("list elem %d\n", sizeof(struct list_elem));
+	//allocated_size += roundup(size + 2 * sizeof(struct allocated_block_header));
+
+	if (size == 0)
+		return NULL;
+	int newsize = roundup(size + 2 * sizeof(struct allocated_block_header)); //  
+	allocated_size += newsize;
+	int aligned = roundup(size);
+	//printf("new size %d\t aligned %d\n", newsize, aligned );
+	void *free;
+	
+	//printf("--allocated_size %li\n", allocated_size);
+	//printf("--mem_heapsize() %d\n", mem_heapsize());
+	//gets the next free element
+	printf("``````````BEGIN MALLOC`````````````` %d\n", list_size(&freelist));
+	if (list_size(&freelist) >= 2)
+	{	
+		printf("\nfuck\n");
+		free =  find_next_free(newsize);
+		lElement = (struct list_elem *) free;
+		listsize--;
+		//struct free_block *expand = (struct free_block *)free;
+		
+	
+			printf("FUCK");	
+			if (allocated_size > mem_heapsize()){
+                mem_sbrk(CHUNKSIZE);
+                printf("???%d\n", CHUNKSIZE);
+                void * free = (void *)list_rbegin(&freelist);
+                free -= 8; //Move back up to the header
+                struct allocated_block_header * expandedHeader = (struct allocated_block_header *) free;
+                size_t tempSize = expandedHeader->size;//save the last size
+                printf("???expandedHeader : %d\n", expandedHeader->size);
+                expandedHeader->size = expandedHeader->size + CHUNKSIZE; //Reset the head block.
+                free += tempSize + CHUNKSIZE - sizeof(struct allocated_block_header);
+                struct allocated_block_header *expandedFooter = (struct allocated_block_header *)free;
+                expandedFooter->size = tempSize + CHUNKSIZE;
+                expandedFooter->payload[0] = '0';
+			}
+		
+		//}
+		//if null then go and request more memory for the heap, add it to end of list, coalasce if necessary
+	}
+	else 
+	{
+		//printf("\nprev %d\n", list_size(&freelist));
+		printf("Goes into the else\n");
+		free = list_pop_front(&freelist);
+		lElement = (struct list_elem *)free;
+		listsize--;
+		//while (allocated_size > mem_heapsize()){
+			
+		//	mem_sbrk(CHUNKSIZE);
+		//}
+		
+	}
+	free -= 8;
+	void * rtrn = free;//(char *) free;
+	rtrn += 8;
+	
+	//struct free_block *block = (struct free_block *) free;//gets the block
+	//printf("free block header size %d\n", ((block->head).size));
+	//stores the info for a new allocated block and moves pointer	
+
+	struct allocated_block_header * header = (struct allocated_block_header *) free;
+	
+	//size_t sizeOldFreeBlock = header.size;
+	size_t sizeOldFreeBlock = header->size;
+	//	printf("size old free block %d\n", sizeOldFreeBlock);
+	header->size = newsize;
+	//	printf("A- new header size: %d\n", header->size);
+	header->payload[0] = '1';
+////////////////
+//	struct free_block *ablock = (struct free_block *) free;
+//	struct allocated_block_header aheader = ablock->head;
+//	printf("ablock %d\n", (aheader.size));
+
+////////////////	
+
+	//PUT(free, PACK(header.size, header.payload[0]));
+	free = free + aligned + sizeof(struct allocated_block_header);
+	
+	//footer for new allocated element
+	struct allocated_block_header *footer = (struct allocated_block_header *)free;
+	footer->size = newsize;
+	//printf("A- new footer size: %d\n", footer->size);
+	footer->payload[0] = '1';
+	free = free + sizeof (struct allocated_block_header);
+
+        //free points to the allocated_block_header of the new free block
+	struct allocated_block_header *newHeader = (struct allocated_block_header *)free;
+	newHeader->size = sizeOldFreeBlock - aligned - sizeof(struct allocated_block_header) * 2;
+	
+	//printf("F---- sizeold : %d\n", sizeOldFreeBlock);
+	//printf("F---- aligned : %d\n", aligned);
+	//printf("F- _____________________newheader->size %d\n", newHeader->size);
+	//at the allocated_block_header
+	free = free + sizeof(struct allocated_block_header);
+        
+	//free points to the list element here
+	//   printf("SIZZEEE %d", list_size(&freelist));
+
+	struct list_elem *elements = (struct list_elem *)free;
+	elements->prev = lElement->prev;
+	elements->next = lElement->next;
+	printf("List size before push_front: %d\n", list_size(&freelist));
+	list_push_front(&freelist, elements);
+	//swap(*lElement, *elements);
+	printf("List size after push_front: %d\n", list_size(&freelist));
+	if (elements->prev == list_head(&freelist))
+	{
+		printf("\nTHEY ARE EQUAL!!!!!!!\n");
+	}
+	if (elements->next == list_tail(&freelist))
+	{
+		printf("next is the tail\n");
+	}
+	if (elements->prev == list_tail(&freelist)){
+		printf("prev is the tail\n");
+	}
+	newHeader->payload[0]='0';
+		
+	free = free + newHeader->size - sizeof(struct allocated_block_header) * 2;
+	//points to the beginning of the footer
+	
+	struct allocated_block_header *newFooter = (struct allocated_block_header *)free;
+	newFooter->size =  sizeOldFreeBlock - aligned - sizeof(struct allocated_block_header) * 2;
+	newFooter->payload[0]='0';
+	//printf("F- newheader->size %d\n", newFooter->size);
+	
+	
+	//free = free - sizeof(struct list_elem) - (sizeof(struct allocated_block_header) * 3) - aligned;
+	//list_push_back(&freelist, &(newFreeBlock->elem));
+	//if (list_tail(&freelist) == list_next( &(newFreeBlock->elem)))
+	//	printf("HEADHEADHEAH  HEAD\n");
+	newHeader->payload[0]='0';
+	//printf("===========list size MALLOC %d\n", list_size(&freelist));
+	printf("```````````End malloc`````````````\n");
+	return rtrn;
+	//return blk->payload;
+}
+
+/*
+ * mm_free - Freeing a block does nothing.
+ */
+void mm_free(void *ptr)
+{
+
+	if (ptr == NULL)
+		return;
+	void * nPtr = ptr;
+	nPtr = nPtr -sizeof(struct allocated_block_header);
+	struct allocated_block_header *header = (struct allocated_block_header *)nPtr;
+	allocated_size = allocated_size - header->size;
+	printf("`````header->size %d\n", header->size);
+	//printf("`````````header ->payload  %c\n", header->payload[0]);//why is this correct but below not correct?
+	header->payload[0] = '0';
+	//printf("`````````--------header ->payload  %c\n", header->payload[0]);
+	nPtr = nPtr + sizeof(struct allocated_block_header);
+	
+	struct list_elem *elements = (struct list_elem *)nPtr; 
+	printf("===========HERE SEG %d\n", list_size(&freelist));
+	
+	list_push_back(&freelist, elements);
+	if ((int)list_size(&freelist) > 2)
+		printf("FREFREEFREEFREE FREE\n");
+	listsize++;
+	printf("===========list size %d\n", list_size(&freelist));
+	header->payload[0] = '0';
+	
+	//
+	
+	
+	//printf("NPTR ----PAYLOAD %c\n", header->payload[0]);
+	nPtr = nPtr - sizeof(struct allocated_block_header);
+	//
+	//struct allocated_block_header *temp = (struct allocated_block_header *)nPtr;
+	//printf("NPTR ------- %d\n", header->size);
+	//printf("NPTR ----PAYLOAD %c\n", header->payload[0]);//this now has new value
+	coalesce(nPtr);
+}
+
+/*
+ * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
+ */
+void *mm_realloc(void *oldptr, size_t size)
+{
+    void *newptr = mm_malloc(size);
+    if (newptr == NULL)
+      return NULL;
+
+    /* Assuming 'oldptr' was a '&payload[0]' in an allocated_block_header,
+     * determine its start as 'oldblk'.  Then its size can be accessed
+     * more easily.
+     */
+    struct allocated_block_header *oldblk;
+    oldblk = oldptr - offsetof(struct allocated_block_header, payload);
+
+    size_t copySize = oldblk->size;
+    if (size < copySize)
+      copySize = size;
+
+    memcpy(newptr, oldptr, copySize);
+    mm_free(oldptr);
+    return newptr;
+}
+
+/**
+this finds the next free block. it is currently a first fit check. should adjust for best fit, 
+so that it doesnt leave one empty cell inbetween and cases such as that. 
+*/
+void *find_next_free(size_t size)
+{
+
+	struct list_elem *temp;
+	struct free_block *free = NULL;
+	for ( temp = list_begin(&freelist); temp != list_end(&freelist); temp = list_next(temp))
+	{
+		free = list_entry (temp, struct free_block, elem);
+		void * temp2 = free;
+		temp2 -= sizeof(struct list_elem);
+		struct allocated_block_header * header = (struct allocated_block_header *) temp2;
+		if (header->size >= size)
+		{	
+			printf("hihihihi");
+			temp2 += sizeof(struct allocated_block_header);	
+			struct list_elem *removedElem = (struct list_elem *) temp2;
+			if (removedElem != NULL && removedElem->prev == NULL && removedElem->next != NULL){
+				//Element is the head.
+				return list_pop_front(&freelist);
+			}
+			else if (removedElem != NULL && removedElem->prev != NULL && removedElem->next == NULL){
+				//This is for when the element is the tail.
+				return list_pop_back(&freelist);
+				
+			}
+			else{
+				return list_remove(removedElem);
+			}
+		}
+	}
+	return free;	
+}
+
+/**
+this is only called after it has already been determined that there needs to be coallascing. 
+there should be a check for it before this is called. however, this method is blind to which of the 3
+cases of coalsacing needs to be completed.
+*/
+static void *coalesce(void *bp) 
+{
+	//stores the initial to return and manipule in the if else statements
+	//this is written based on bp being given pointing to the top of the header of the newly freed element
+	//need to check to make sure it has prev element that is not the head and check next to make sure it isnt tail
+	struct allocated_block_header *current = (struct allocated_block_header *)bp;
+	bp = bp + sizeof(struct allocated_block_header );//move to list elem
+	struct list_elem *currentElem = (struct list_elem *)bp;
+	
+	bp = bp - sizeof(struct allocated_block_header);//move to top of header
+	
+	printf("CURRENT %c\n", current->payload[0]);
+	//printf("CURENT _____ %d", current->size);
+	void * newBp = bp;
+	bp = bp - sizeof(struct allocated_block_header);//at the footer of previous element
+	struct allocated_block_header *previousFooter = (struct allocated_block_header *)bp;
+	
+	printf("previous FOOTER %c\n", previousFooter->size);
+	bp = bp - previousFooter->size + sizeof(struct allocated_block_header );//should now be at the header of previous element
+	
+	struct allocated_block_header *previousHeader = (struct allocated_block_header *)bp;
+	printf("previous HEADER %c\n", previousHeader->payload[0]);
+	bp = bp + previousHeader->size - sizeof(struct allocated_block_header);//moves the pointer bp back to pointing at the footer of previous element
+	
+	int prev = previousHeader->payload[0] == '0'; // if its true then it is 1
+	bp = bp + 8;//moves back to header of given element
+	
+	size_t currentSize = current->size;
+	bp = bp + currentSize;//moves the pointer to the header of the next element
+	struct allocated_block_header *nextHeader = (struct allocated_block_header *)bp;
+	int next = nextHeader->payload[0]=='0';
+	printf("---list size %d\n", list_size(&freelist));
+	if (currentElem == list_front(&freelist))
+	{
+		printf("list_front\n");
+		prev = 0;
+	}
+	if (currentElem == list_back(&freelist))
+	{
+		printf("list_back\n");
+		next = 0;
+	}
+	printf("----NEXT %d\n", next);
+	printf("----PREV %d\n", prev);
+	//printf()
+	//int c = current->payload[0]=='0';
+	
+	
+
+
+    if (next && prev) {            //when nothing needs to change, when both neigbors are not free
+		printf("center\n");
+		printf("previousHeader size %d\n", previousHeader->size);
+		printf("nextHeader size %d\n", nextHeader->size);
+		printf("Current %d\n", currentSize);
+		currentSize = currentSize + previousHeader->size + nextHeader->size;
+		
+		printf("TOTAL SIZE CENTER %d\n", currentSize);
+		previousHeader->size = currentSize;
+		bp  = bp + sizeof(struct allocated_block_header);
+		removeElem((struct list_elem *)bp); 
+		bp = bp + nextHeader->size - sizeof(struct allocated_block_header) * 2;
+		struct allocated_block_header *nextFooter = (struct allocated_block_header *)bp;
+		nextFooter->size = currentSize;
+		newBp = newBp + sizeof(struct allocated_block_header);
+		removeElem((struct list_elem *)newBp);
+
+		newBp = newBp - sizeof(struct allocated_block_header);
+		
+		
+		//return newBp;
+    }
+
+    else if (!prev && next) {     //when the right neighbor is free --remove the right list_elem from list
+		printf("right\n");
+		printf("nextHeader size %d\n", nextHeader->size);
+		printf("Current %d\n", currentSize);
+		currentSize = currentSize + nextHeader->size;
+		bp  = bp + sizeof(struct allocated_block_header);
+		removeElem((struct list_elem *)bp);
+		bp = bp + nextHeader->size - sizeof(struct allocated_block_header) * 2;//this needs to move bp to the footer so that its size can be reset
+		current->size = currentSize;//set header size
+		struct allocated_block_header *nextFooter = (struct allocated_block_header *)bp;//set footer size
+		nextFooter->size = currentSize;
+		printf("current new size coalasce %d\n", currentSize);
+    }
+
+    else if (prev && !next) { //when the left neighbor is free -- remove the current list_elem from list
+		printf("left\n");
+		printf("previous header new size should be full %d\n", previousHeader->size);
+		currentSize = currentSize + previousHeader->size;
+		newBp = newBp + sizeof(struct allocated_block_header);
+		removeElem((struct list_elem *)newBp);
+		printf("previousHeader -> payload %c\n", previousHeader->payload[0]);
+		bp = bp - sizeof(struct allocated_block_header);
+		struct allocated_block_header *currentFooter = (struct allocated_block_header *)bp;
+		printf("CURRENT FOOTER SIZE %d\n", currentFooter->size);
+		currentFooter->size = currentSize;
+		previousHeader->size = currentSize;
+		newBp = newBp - sizeof(struct allocated_block_header);
+		printf("previous header new size should be full %d\n", currentSize);
+		
+    }
+
+    //else {    //when both the left and right neighbors are free -- remove current and next list_elem
+		
+    //}
+
+    return newBp;
+}
+
+static struct list_elem * removeElem(struct list_elem *removedElem)
+{
+	if (removedElem != NULL && removedElem->prev == NULL && removedElem->next != NULL){
+		//Element is the head.
+		return list_pop_front(&freelist);
+	}
+	else if (removedElem != NULL && removedElem->prev != NULL && removedElem->next == NULL){
+		//This is for when the element is the tail.
+		return list_pop_back(&freelist);
+		
+	}
+	else{
+		return list_remove(removedElem);
+	}
+
+}
+// vim: ts=8

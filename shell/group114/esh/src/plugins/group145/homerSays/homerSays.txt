@@ -1,0 +1,7 @@
+Prints out a random Homer Simpson quote. To use, type "homer says".
+
+Example:
+
+>>> homerSays
+
+"Don't eat me. I have a wife and kids.  Eat them."

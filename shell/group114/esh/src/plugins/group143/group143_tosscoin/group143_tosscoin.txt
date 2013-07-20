@@ -1,0 +1,9 @@
+The 'tosscoin' esh plug-in
+---------------------------------------
+
+This plug-in simulates tossing a coin. returns with heads or tails
+
+usage: tosscoin
+
+Written by April Santos(adsantos) and Christopher Caldwell(chrisc90@vt.edu) 
+Fall 2011  for cs 3214

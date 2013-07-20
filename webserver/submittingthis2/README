@@ -1,0 +1,46 @@
+README File for 
+Fall 2011 CS 3214 Webserver
+
+Neal Schneier neal89
+Michael Chao mchao8
+
+What works
+~~~~~~~~~~~~~~~~~~~~~~
+
+The webserver works by accepting both HTTP 1.0 and HTTP 1.1 requests and responds
+in the proper manner. 
+
+Meminfo and meminfo callbacks work in all cases and responds in json format.
+
+Loadavg and its callback works in all cases and responds in json format.
+
+The server deals files, including jpg images and gif as well as the required css, js
+and html files.
+
+Runloop successfully runs and adjusts the load average.
+
+Allocanon successful allocates memory.
+
+Freeanon successful removes the last block given.
+
+Responds to bad requests with the proper HTTP message in the correct format.
+
+Supports multiple client support by use of threading. 
+
+All errors are caught so that one error does not shut down the entire server.
+
+Works for IPV6.
+
+Widgets can be run and are loaded and update regularly. 
+
+
+Design
+==========================
+
+The server itself works by opening up sockets and listening for requests. When a request is received it 
+creates a thread and calls the function with the necessary paraments. From there it calls the function and begins
+using the file descriptor. It uses the file descriptor to communicate. It parses the data sent across the 
+file descriptor and breaks it down based on several factors. First it determines if it is a GET request, then the
+address it is looking for and the version of HTTP. From there it performs the correct actions based on the request
+and responds in formatted HTTP 1.0 and 1.1 responses. Many of the functions are broken down into their own files
+to distribute the code. 

@@ -1,0 +1,11 @@
+#include <sys/mman.h>
+//void *pointer = mmap(NULL, 67108864, PROT_EXEC & PROT_READ & PROT_WRITE, MAP_ANONYMOUS, -1, 0);
+malloc(67108864);
+int i;
+for (i = 0; i < 1000; i++){
+	if (allocatedMemory[i] == 0){
+		break;
+	}
+}
+printf("Some shit happend");
+//allocatedMemory[i] = *(int *) pointer;

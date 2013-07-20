@@ -1,0 +1,14 @@
+
+The 'deadline' esh plug-in
+--------------------------
+
+The 'deadline' plug-in shows how much time is left to the due
+date in your prompt.
+
+It also implements a built-in command 'show duedates' that lists
+all due dates.
+
+--
+Written by G. Back (gback@cs.vt.edu) Fall 2009 for CS 3214
+
+

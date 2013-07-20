@@ -1,0 +1,18 @@
+Integer to Letter Grader Converter.
+
+This is our plugin which allows you to enter your grade as an integer and it 
+returns the letter (+/-) representation.
+
+
+How to run:  Invoke our converter by entering What's_my_grade? followed by an
+integer.  Check out the examples below.
+
+Sample
+................
+What's_my_grade? 95 
+Congragulations, you got an A
+
+What's_my_grade? 101
+You are such an over-achiever
+
+Authors: Aaron Goldberg, Eeshan Shah

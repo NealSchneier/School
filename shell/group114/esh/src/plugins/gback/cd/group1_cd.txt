@@ -1,0 +1,9 @@
+The 'cd' esh plug-in
+-----------------------
+
+This plug-in implements 'cd'. 
+
+'cd' with no arguments changes into the home directory.
+
+--
+Written by Godmar Back for CS 3214 Spring 2010 (gback@cs.vt.edu)

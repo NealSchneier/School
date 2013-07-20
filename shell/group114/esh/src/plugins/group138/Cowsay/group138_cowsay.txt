@@ -1,0 +1,22 @@
+The 'cowsay' esh plug-in
+-----------------------
+This plugin implements 'cowsay'
+Prings the users input in a cow's speech bubble.
+usage: cowsay <any amount of input>
+
+sample output:
+esh> cowsay mooo
+Valid Input
+  ---
+/    \
+| moo |
+\    /
+  ---
+       \     ^__^
+        \    (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+				 
+Written by Ian Davies(iand@vt.edu) and Julian Adams(jja216@vt.edu)
+Fall 2011 for CS 3214

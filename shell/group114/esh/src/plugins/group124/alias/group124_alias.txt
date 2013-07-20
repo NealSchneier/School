@@ -1,0 +1,16 @@
+Author: group124
+-------------------------------------------------------------------
+
+Allows you to alias a word to another word using "esh_alias" command.
+
+> echo testing
+testing
+
+> esh_alias testing monkey
+testing = "monkey"
+
+> echo testing
+monkey
+
+-------------------------------------------------------------------
+Plugin written by Rishi Ishairzay (rishair@vt.edu) and Rithvik Kasireddy (rrk24@vt.edu)

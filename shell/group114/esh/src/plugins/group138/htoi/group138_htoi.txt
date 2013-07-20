@@ -1,0 +1,13 @@
+The 'htoi' esh plug-in
+-----------------------
+This plugin implements 'htoi'
+Converts an integer into its respective hex value.
+
+usage: htoi <integer value>
+
+sample output:
+esh> htoi A0
+A0 in hex is 160 integer
+
+Written by Ian Davies(iand@vt.edu) and Julian Adams(jja216@vt.edu)
+Fall 2011 for CS 3214

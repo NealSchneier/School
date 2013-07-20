@@ -1,0 +1,16 @@
+The 'sub' esh plug-in
+-----------------------
+
+The 'sub' plug-in takes a string of numbers and subtracts them from the first.
+
+Sample:
+
+esh> sub 5 3 1
+1
+
+esh> sub 10 50
+-40
+
+esh> sub 10 5 3 2
+0
+

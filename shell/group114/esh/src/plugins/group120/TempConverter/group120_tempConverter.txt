@@ -1,0 +1,17 @@
+TempConverter Plugin
+
+Will convert temperature from Celsius, Fahrenheit, and Kelvin to the other.
+
+Sample Input
+--------------
+tempConverter 27 C K
+
+Sample Output
+--------------
+300 K
+
+The input means run the plugin tempConverter and convert 27 C(Celsius) to K(Kelvin). To use Fahrenheit use the letter F like tempConverter 27 F K.
+
+It will convert from the first unit to the second. Both units cannot be same. The output will be rounded to the nearest integer.
+
+Authors: Eeshan Shah and Aaron Goldberg (Group 120)

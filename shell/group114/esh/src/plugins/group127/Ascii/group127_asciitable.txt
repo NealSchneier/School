@@ -1,0 +1,7 @@
+@author marknach+panta
+@Test to run the tests, use ./asciitest.py output.py
+This plugin as two uses.  Either you can run it with no arguments and it will print an ascii table.  If you enter a letter, it will output the ascii value.  If you enter a number, it will give you the character ascii value of that number.
+
+esh> asciitable 65
+
+ASCII character for 65 is A

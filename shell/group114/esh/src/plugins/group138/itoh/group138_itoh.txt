@@ -1,0 +1,13 @@
+The 'itoh' esh plug-in
+-----------------------
+This plugin implements 'itoh'
+Converts an integer to an hex string.
+
+usage: itoh <hex string>
+
+sample output:
+esh> itoh 56
+56 in integer is 38 in hex
+
+Written by Ian Davies(iand@vt.edu) and Julian Adams(jja216@vt.edu)
+Fall 2011 for CS 3214

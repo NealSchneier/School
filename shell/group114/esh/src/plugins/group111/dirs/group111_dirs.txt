@@ -1,0 +1,46 @@
+-------------------------------------------------------------------------------
+
+This plugin implements the dirs functionality. This allows the user to keep
+a list of directories that can be jumped to easily. This is done by using the
+following commands:
+
+	dirs, pushd, popd
+
+dirs [-cpv]
+	Without options, this displays a list of all the directories currently
+	being stored in the list. The default display is all in one line 
+	seperated by spaces. Directories are added with pushd and removed with
+	popd.
+	-c	Clears the list.
+	-p	Displays each directory on a seperate line.
+	-v	Displays each directory on a seperate line and numbers each
+		directory.
+
+pushd [dir]
+	Adds the directory to the top of the stack and makes it the current
+	working directory.
+pushd
+	When used without arguments, the first two directories in the list will
+	be swapped, making the old second element the new current working
+	directory.
+
+pushd [+n] [-n]
+	+n	Rotates the stack so that the nth directory from the left,
+		starting at 0, is the new top of the stack and current working
+		directory.
+	-n	Rotates the stack so that the nth directory from the right,
+		with 0 being the last directory in the list, is the new top
+		of the stack and current working directory.
+
+popd
+	When used without arguments popd will remove the top directory on the
+	stack, and make the new top of the stack the current working directory.
+
+popd [+n] [-n]
+	+n	Removes the nth directory from the left, with 0 being the first
+		directory.
+	-n	Removes the nth directory from the right, with 0 being the last
+		directory.
+-------------------------------------------------------------------------------
+
+Author: Adam Binford (adamq@vt.edu)

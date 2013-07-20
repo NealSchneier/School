@@ -1,0 +1,12 @@
+The 'quit' esh plug-in
+-----------------------
+This plugin implements 'quit'
+
+usage: quit
+
+sample output: 
+esh> quit
+-bash-3.2$ 
+
+Written by Ian Davies(iand@vt.edu) and Julian Adams(jja216@vt.edu)
+Fall 2011 for CS 3214

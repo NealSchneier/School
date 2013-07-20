@@ -1,0 +1,7 @@
+@author marknach+panta
+@Test to run the tests, use ./bintest.py output.py
+
+Takes in a integer, and outputs the binary string
+
+esh> inttobin 4
+The binary representation of 4 is 0100

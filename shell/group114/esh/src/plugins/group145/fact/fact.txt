@@ -1,0 +1,9 @@
+Author: group145
+-------------------------------------------------------------------
+Takes an integer as an input, and returns its factorial.
+
+Plug-in name: fact <input>
+
+esh> fact 4
+
+The factorial for the number entered is: 24.

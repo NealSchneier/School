@@ -1,0 +1,18 @@
+RGBToHex
+
+This is our Color Converter.  It takes in RGB Color values and returns its 
+equivalent HEX representation.
+
+>>To invoke Color Converter
+Call RGBToHEX and pass it, 3 command line arguments, each separated by a 
+space.  Each argument should be an integer.
+
+Sample Input
+...............
+RGBToHEX 255 255 255
+
+Sample Output
+...............
+FFFFFF
+
+Authors: Aaron Goldberg, Eeshan Shah

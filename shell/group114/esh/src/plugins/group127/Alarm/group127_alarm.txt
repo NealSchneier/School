@@ -1,0 +1,11 @@
+@author marknach+panta
+@Test to run the tests, navigate to your esh home directory and use the
+command
+/web/courses/cs3214/fall2011/projects/student-plugins/group127/Alarm/alarmtest.py
+/web/courses/cs3214/fall2011/projects/student-plugins/group127/Alarm/output.py
+Waits a user inputted amount of seconds, then sets off the alarm.
+sample output 
+esh> alarm 2
+
+BEEP BEEP
+TIME TO WAKE UP

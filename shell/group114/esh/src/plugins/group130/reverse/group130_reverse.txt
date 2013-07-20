@@ -1,0 +1,13 @@
+The 'reverse' esh plug-in
+-----------------------
+
+The 'reverse' plug-in reverses a provided string.
+
+Sample:
+esh> reverse string
+gnirts
+
+esh> reverse lots of words
+sdrow fo stol
+
+

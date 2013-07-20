@@ -1,0 +1,19 @@
+
+The 'history' esh plug-in
+-----------------------
+
+The 'history' plug-in provides a history for esh.
+
+It uses the functions provided by GNU's History library.
+See 'info history' for more information
+
+It implements the 'process_raw_cmdline' method by applying
+history expansion and recording commands in the history.
+
+With a history in place, GNU readline() will circulate through
+the history via the cursor keys; history expansion as described
+here: http://www.gnu.org/software/bash/manual/html_node/Event-Designators.html#Event-Designators
+
+--
+Written by G. Back (gback@cs.vt.edu) Fall 2009 for CS 3214
+

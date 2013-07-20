@@ -1,0 +1,38 @@
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "mm.h"
+#include "memlib.h"
+
+
+/* rounds up to the nearest multiple of ALIGNMENT */
+#define ALIGN(p) (((int)(p) + (ALIGNMENT-1)) & ~0x7)
+
+/*Book macros*/
+#define WSIZE 4
+#define DSIZE 8
+#define CHUNKSIZE ((1<<8))
+#define OVERHEAD 8
+#define type int //type to use for header/footer
+
+#define MAX(x, y) ((x)>(y)?(x):(y))
+
+#define PACK(size, alloc) ((size) | (alloc))
+
+#define GET(p)      (*(type *)(p))
+#define PUT(p, val) (*(type *)(p) = (val))
+
+#define GET_SIZE(p)  (GET(p) & ~0x7)
+#define GET_ALLOC(p) (GET(p) & 0x1)
+
+#define HDR(bp) ((char *)(bp) - WSIZE)
+#define FTR(bp) ((char *)(bp) + GET_SIZE(HDR(bp))-DSIZE)
+
+#define NEXT_BLKP(bp) ((char *)(bp) +GET_SIZE(((char *)(bp) - WSIZE)))
+#define PREV_BLKP(bp) ((char *)(bp) -GET_SIZE(((char *)(bp) - DSIZE)))
+
+#define NEXT(bp) (*(void **)(bp)) //in size class
+#define PREV(bp) (*(void **)((bp)+8))

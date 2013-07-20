@@ -1,0 +1,11 @@
+The 'mod' esh plug-in
+---------------------------------------
+
+This plug-in implements the modulus operator
+
+usage: mod num1 num2
+
+    - will return with num1 % num2 
+
+Written by April Santos(adsantos) and Christopher Caldwell(chrisc90@vt.edu) 
+Fall 2011  for cs 3214

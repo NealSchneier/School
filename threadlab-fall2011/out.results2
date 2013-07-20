@@ -1,0 +1,240 @@
+
+Depth: 1   Threads: 1
+
+Using 1 threads, recursive parallel depth=1
+qsort parallel       took 119.524 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 2
+
+Using 2 threads, recursive parallel depth=1
+qsort parallel       took 103.385 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 4
+
+Using 4 threads, recursive parallel depth=1
+qsort parallel       took 103.382 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 6
+
+Using 6 threads, recursive parallel depth=1
+qsort parallel       took 103.381 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 8
+
+Using 8 threads, recursive parallel depth=1
+qsort parallel       took 103.310 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 12
+
+Using 12 threads, recursive parallel depth=1
+qsort parallel       took 103.392 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 16
+
+Using 16 threads, recursive parallel depth=1
+qsort parallel       took 103.095 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 2   Threads: 1
+
+Using 1 threads, recursive parallel depth=2
+qsort parallel       took 119.527 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 2
+
+Using 2 threads, recursive parallel depth=2
+qsort parallel       took 102.901 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 4
+
+Using 4 threads, recursive parallel depth=2
+qsort parallel       took 101.917 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 6
+
+Using 6 threads, recursive parallel depth=2
+qsort parallel       took 101.660 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 8
+
+Using 8 threads, recursive parallel depth=2
+qsort parallel       took 101.640 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 12
+
+Using 12 threads, recursive parallel depth=2
+qsort parallel       took 101.677 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 16
+
+Using 16 threads, recursive parallel depth=2
+qsort parallel       took 101.715 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 3   Threads: 1
+
+Using 1 threads, recursive parallel depth=3
+qsort parallel       took 119.512 sec.
+Processed 14 segments of sizes: 213418 3641948 4177260 4390680 7084669 8251804 10726619 26839236 35091042 45817663 89312720 160478930 249791652 254182334 
+
+Depth: 3   Threads: 2
+
+Using 2 threads, recursive parallel depth=3
+qsort parallel       took 73.823 sec.
+Processed 14 segments of sizes: 213418 3641948 4177260 4390680 7084669 8251804 10726619 26839236 35091042 45817663 89312720 160478930 249791652 254182334 
+
+Depth: 3   Threads: 4
+
+Using 4 threads, recursive parallel depth=3
+qsort parallel       took 69.489 sec.
+Processed 14 segments of sizes: 213418 3641948 4177260 4390680 7084669 8251804 10726619 26839236 35091042 45817663 89312720 160478930 249791652 254182334 
+
+Depth: 3   Threads: 6
+
+Using 6 threads, recursive parallel depth=3
+qsort parallel       took 69.418 sec.
+Processed 14 segments of sizes: 213418 3641948 4177260 4390680 7084669 8251804 10726619 26839236 35091042 45817663 89312720 160478930 249791652 254182334 
+
+Depth: 3   Threads: 8
+
+Using 8 threads, recursive parallel depth=3
+qsort parallel       took 69.562 sec.
+Processed 14 segments of sizes: 213418 3641948 4177260 4390680 7084669 8251804 10726619 26839236 35091042 45817663 89312720 160478930 249791652 254182334 
+
+Depth: 3   Threads: 12
+
+Using 12 threads, recursive parallel depth=3
+qsort parallel       took 69.477 sec.
+Processed 14 segments of sizes: 213418 3641948 4177260 4390680 7084669 8251804 10726619 26839236 35091042 45817663 89312720 160478930 249791652 254182334 
+
+Depth: 3   Threads: 16
+
+Using 16 threads, recursive parallel depth=3
+qsort parallel       took 69.675 sec.
+Processed 14 segments of sizes: 213418 3641948 4177260 4390680 7084669 8251804 10726619 26839236 35091042 45817663 89312720 160478930 249791652 254182334 
+
+Depth: 4   Threads: 1
+
+Using 1 threads, recursive parallel depth=4
+qsort parallel       took 119.639 sec.
+Processed 30 segments of sizes: 62879 150537 213418 460514 777721 832286 2012334 2809660 2998350 3399537 3641948 4086317 4177260 4390680 4878683 7084669 7791288 8251804 10726619 21960551 22131218 26839236 35091042 45817663 67181500 89312720 158466594 160478930 249791652 254182334 
+
+Depth: 4   Threads: 2
+
+Using 2 threads, recursive parallel depth=4
+qsort parallel       took 74.570 sec.
+Processed 30 segments of sizes: 62879 150537 213418 460514 777721 832286 2012334 2809660 2998350 3399537 3641948 4086317 4177260 4390680 4878683 7084669 7791288 8251804 10726619 21960551 22131218 26839236 35091042 45817663 67181500 89312720 158466594 160478930 249791652 254182334 
+
+Depth: 4   Threads: 4
+
+Using 4 threads, recursive parallel depth=4
+qsort parallel       took 68.931 sec.
+Processed 30 segments of sizes: 62879 150537 213418 460514 777721 832286 2012334 2809660 2998350 3399537 3641948 4086317 4177260 4390680 4878683 7084669 7791288 8251804 10726619 21960551 22131218 26839236 35091042 45817663 67181500 89312720 158466594 160478930 249791652 254182334 
+
+Depth: 4   Threads: 6
+
+Using 6 threads, recursive parallel depth=4
+qsort parallel       took 68.934 sec.
+Processed 30 segments of sizes: 62879 150537 213418 460514 777721 832286 2012334 2809660 2998350 3399537 3641948 4086317 4177260 4390680 4878683 7084669 7791288 8251804 10726619 21960551 22131218 26839236 35091042 45817663 67181500 89312720 158466594 160478930 249791652 254182334 
+
+Depth: 4   Threads: 8
+
+Using 8 threads, recursive parallel depth=4
+qsort parallel       took 68.944 sec.
+Processed 30 segments of sizes: 62879 150537 213418 460514 777721 832286 2012334 2809660 2998350 3399537 3641948 4086317 4177260 4390680 4878683 7084669 7791288 8251804 10726619 21960551 22131218 26839236 35091042 45817663 67181500 89312720 158466594 160478930 249791652 254182334 
+
+Depth: 4   Threads: 12
+
+Using 12 threads, recursive parallel depth=4
+qsort parallel       took 69.100 sec.
+Processed 30 segments of sizes: 62879 150537 213418 460514 777721 832286 2012334 2809660 2998350 3399537 3641948 4086317 4177260 4390680 4878683 7084669 7791288 8251804 10726619 21960551 22131218 26839236 35091042 45817663 67181500 89312720 158466594 160478930 249791652 254182334 
+
+Depth: 4   Threads: 16
+
+Using 16 threads, recursive parallel depth=4
+qsort parallel       took 69.083 sec.
+Processed 30 segments of sizes: 62879 150537 213418 460514 777721 832286 2012334 2809660 2998350 3399537 3641948 4086317 4177260 4390680 4878683 7084669 7791288 8251804 10726619 21960551 22131218 26839236 35091042 45817663 67181500 89312720 158466594 160478930 249791652 254182334 
+
+Depth: 5   Threads: 1
+
+Using 1 threads, recursive parallel depth=5
+qsort parallel       took 119.359 sec.
+Processed 62 segments of sizes: 3287 10395 50658 52482 62879 99877 150537 213418 221622 320319 329785 428867 447934 457225 460514 610662 632525 777721 800752 832286 967755 1663942 1692013 1876197 2008906 2012334 2431780 2569481 2809660 2998350 3214739 3399537 3453790 3641948 4011480 4086317 4177260 4390680 4878683 5915089 7084669 7791288 7994291 8251804 9515567 10726619 14136925 17949069 21960551 22131218 26618937 26839236 35091042 40562561 45817663 67181500 89312720 148951025 158466594 160478930 249791652 254182334 
+
+Depth: 5   Threads: 2
+
+
+Depth: 1   Threads: 1
+
+
+Depth: 1   Threads: 1
+
+Using 1 threads, recursive parallel depth=1
+qsort parallel       took 119.362 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 2
+
+Using 2 threads, recursive parallel depth=1
+qsort parallel       took 102.976 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 4
+
+Using 4 threads, recursive parallel depth=1
+qsort parallel       took 103.244 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 6
+
+Using 6 threads, recursive parallel depth=1
+qsort parallel       took 103.244 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 8
+
+Using 8 threads, recursive parallel depth=1
+qsort parallel       took 102.994 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 12
+
+Using 12 threads, recursive parallel depth=1
+qsort parallel       took 103.227 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 1   Threads: 16
+
+Using 16 threads, recursive parallel depth=1
+qsort parallel       took 103.224 sec.
+Processed 2 segments of sizes: 45817663 254182334 
+
+Depth: 2   Threads: 1
+
+Using 1 threads, recursive parallel depth=2
+qsort parallel       took 119.399 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 2
+
+Using 2 threads, recursive parallel depth=2
+qsort parallel       took 103.147 sec.
+Processed 6 segments of sizes: 4390680 10726619 35091042 45817663 249791652 254182334 
+
+Depth: 2   Threads: 4
+
+
+Depth: 1   Threads: 1
+

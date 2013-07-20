@@ -1,0 +1,19 @@
+The 'glob' esh plug-in
+-----------------------
+
+The 'glob' plug-in provides glob (wildcard) expansion for esh.
+
+It implements the 'process_pipeline' method, iterates through
+all commands in each pipeline, and replaces each argv[i] element
+with its glob expansion using glob(3).
+
+The plug-in always frees the old cmd->argv array and allocates
+a new array.
+
+The plug-in will reuse the cmd->argv[i] if no glob expansion
+occurs, else it will free cmd->argv[i] and allocate new memory
+for the entries into which it is expanded.
+
+--
+Written by G. Back (gback@cs.vt.edu) Fall 2009 for CS 3214
+

@@ -1,0 +1,323 @@
+/*
+ * mm-naive.c - The fastest, least memory-efficient malloc package.
+ * 
+ * In this naive approach, a block is allocated by simply incrementing
+ * the brk pointer.  Only a header is stored with the size to allow
+ * for realloc() to retrieve the block size.  Blocks are never coalesced 
+ * or reused in this naive implementation. Realloc is
+ * implemented directly using mm_malloc and mm_free.
+ *
+ * NOTE TO STUDENTS: Replace this header comment with your own header
+ * comment that gives a high level description of your solution.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <unistd.h>
+#include <string.h>
+#include <stddef.h>
+
+#include "list.h"
+#include "mm.h"
+#include "memlib.h"
+#include "config.h"             /* defines ALIGNMENT */
+
+/* Basic constants and macros */
+#define WSIZE       4       /* Word and header/footer size (bytes) */ //line:vm:mm:beginconst
+#define DSIZE       8       /* Doubleword size (bytes) */
+#define CHUNKSIZE  (1<<12)  /* Extend heap by this amount (bytes) */  //line:vm:mm:endconst 
+#define MIN_BLOCK_SIZE_WORDS 4 /* Minimum block size in words */
+#define MAX(x, y) ((x) > (y)? (x) : (y))  
+
+/* Pack a size and allocated bit into a word */
+#define PACK(size, alloc)  ((size) | (alloc)) //line:vm:mm:pack
+
+/* Read and write a word at address p */
+#define GET(p)       (*(unsigned int *)(p))            //line:vm:mm:get
+#define PUT(p, val)  (*(unsigned int *)(p) = (val))    //line:vm:mm:put
+
+/* Read the size and allocated fields from address p */
+#define GET_SIZE(p)  (GET(p) & ~0x7)                   //line:vm:mm:getsize
+#define GET_ALLOC(p) (GET(p) & 0x1)                    //line:vm:mm:getalloc
+
+/* Given block ptr bp, compute address of its header and footer */
+#define HDRP(bp)       ((char *)(bp) - WSIZE)                      //line:vm:mm:hdrp
+#define FTRP(bp)       ((char *)(bp) + GET_SIZE(HDRP(bp)) - DSIZE) //line:vm:mm:ftrp
+
+/* Given block ptr bp, compute address of next and previous blocks */
+#define NEXT_BLKP(bp)  ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE))) //line:vm:mm:nextblkp
+#define PREV_BLKP(bp)  ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE))) //line:vm:mm:prevblkp
+
+
+
+struct list freelist;
+void * find_next_free(size_t size);
+long allocated_size = 0;
+//void place (struct free_block *free, size_t size);
+/*********************************************************
+ * NOTE TO STUDENTS: Before you do anything else, please
+ * provide your team information in the following struct.
+ ********************************************************/
+team_t team = {
+    /* Team name */
+    "group114",
+    /* First member's full name */
+    "Neal Schneier",
+    /* First member's SLO (@cs.vt.edu) email address */
+    "neal89",
+    /* Second member's full name (leave blank if none) */
+    "Michael Chao",
+    /* Second member's SLO (@cs.vt.edu) email address (leave blank if none) */
+    "mchao8"
+};
+
+
+
+/* 
+ * If size is a multiple of ALIGNMENT, return size.
+ * Else, return next larger multiple of ALIGNMENT:
+ * (size/ALIGNMENT + 1) * ALIGNMENT
+ * Does so without requiring integer division, assuming
+ * ALIGNMENT is a power of 2.
+ */
+static size_t roundup(size_t size)
+{
+   return (size + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
+}
+
+/* 
+ * This C struct captures an allocated header.
+ *
+ * By casting a memory location to a pointer to a allocated_block_header,
+ * we are able to treat a part of memory as if a header had been allocated
+ * in it.
+ *
+ * Note: you should never define instances of 'struct allocated_block_header' -
+ *       all accesses will be through pointers.
+ */
+struct allocated_block_header {
+    size_t      size;
+    
+    /* 
+     * Zero length arrays do not add size to the structure, they simply
+     * provide a syntactic form to refer to a char array following the
+     * structure.
+     * See http://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+     *
+     * The 'aligned' attribute forces 'payload' to be aligned at a
+     * multiple of alignment, counted from the beginning of the struct
+     * See http://gcc.gnu.org/onlinedocs/gcc/Variable-Attributes.html
+     */
+    char        payload[0] __attribute__((aligned(ALIGNMENT)));    
+};
+/*
+ * The struct that contains the whole block.
+ */
+struct allocated_block {
+    struct allocated_block_header head;
+    
+    char padding[0];
+};
+
+/**
+ * The free list struct
+ */ 
+struct free_block {
+    struct allocated_block_header head;
+    struct list_elem elem;
+    struct allocated_block_header foot;
+}; 
+/* 
+ * mm_init - initialize the malloc package.
+ */
+int mm_init(void)
+{
+    /* Sanity checks. */
+    assert((ALIGNMENT & (ALIGNMENT - 1)) == 0); // power of 2
+    assert(sizeof(struct allocated_block_header) == ALIGNMENT);
+    assert(offsetof(struct allocated_block_header, size) == 0);
+    assert(offsetof(struct allocated_block_header, payload) % ALIGNMENT == 0);
+    list_init(&freelist);
+    
+    struct free_block * heap = mem_sbrk(CHUNKSIZE);    
+    struct allocated_block_header heapHead;
+	heapHead.size = CHUNKSIZE;
+	heapHead.payload[0] = '0';
+	heap->head = heapHead;
+	heap->foot = heapHead;
+    list_push_back(&freelist, &(heap->elem)); 
+    return 0;
+}
+
+/* 
+ * mm_malloc - Allocate a block by incrementing the brk pointer.
+ *     Always allocate a block whose size is a multiple of the alignment.
+ */
+void *mm_malloc(size_t size)
+{
+	//printf("allocated header %d\n", sizeof(struct allocated_block_header));
+	//printf("free %d\n", sizeof(struct free_block));
+	//printf("allocated %d\n", sizeof(struct allocated_block));
+	//printf("list elem %d\n", sizeof(struct list_elem));
+	allocated_size += roundup(size + 2 * sizeof(struct allocated_block_header));
+	
+	
+	if (size == 0)
+		return NULL;
+	int newsize = roundup(size + 2 * sizeof(struct allocated_block_header)); //  
+	int aligned = roundup(size);
+	//printf("new size %d\t aligned %d\n", newsize, aligned );
+	void *free;
+	//gets the next free element
+	if (list_size(&freelist) >= 2)
+	{	
+		
+		free =  find_next_free(newsize);
+		//struct free_block *expand = (struct free_block *)free;
+		
+		//if (expand == NULL)
+		//{
+		//	printf("FUCK");	
+			while (allocated_size > mem_heapsize()){
+				mem_sbrk(CHUNKSIZE * 2);
+			printf("FUCK");
+			}
+		//}
+		//if null then go and request more memory for the heap, add it to end of list, coalasce if necessary
+	}
+	else 
+	{
+		free = list_pop_front(&freelist);
+	
+		while (allocated_size > mem_heapsize()){
+			
+			mem_sbrk(CHUNKSIZE);
+		}
+		
+	}
+	free -= 8;	
+	char * rtrn = (char *) free;
+	rtrn += 8;
+	
+	struct free_block *block = (struct free_block *) free;//gets the block
+	printf("free size %d\n", ((block->head).size));
+	//stores the info for a new allocated block and moves pointer
+	struct allocated_block_header header = block->head;
+	//size_t sizeOldFreeBlock = header.size;
+	size_t sizeOldFreeBlock = header.size;
+	printf("size old free block %d\n", sizeOldFreeBlock);
+	header.size = aligned;
+	header.payload[0] = '1';
+	free = free + aligned + sizeof(struct allocated_block_header);
+	
+	struct allocated_block_header *footer = (struct allocated_block_header *)free;
+	footer->size = aligned;
+	footer->payload[0] = '1';
+	free += sizeof (struct allocated_block_header);
+	struct free_block *newFreeBlock = (struct free_block *)free;
+	struct allocated_block_header *newHeader = (struct allocated_block_header *)free;
+	newHeader->size = sizeOldFreeBlock - aligned - sizeof(struct allocated_block_header) * 2;
+	
+	//at the top of the new free block
+	free = free + sizeof(struct allocated_block_header);
+	struct list_elem *elements = (struct list_elem *)free;
+	newFreeBlock->head = *newHeader;
+	newFreeBlock->elem = *elements;
+	//free = free + sizeOldFreeBlock - sizeof(struct list_elem) - (sizeof(struct allocated_block_header) * 3) - aligned;
+	free = free + newHeader->size;
+	struct allocated_block_header *newFooter = (struct allocated_block_header *)free;
+	newFooter->size = sizeOldFreeBlock - aligned - sizeof(struct allocated_block_header) * 2;
+	newFreeBlock->foot = *newFooter;
+	
+	//free = free - sizeof(struct list_elem) - (sizeof(struct allocated_block_header) * 3) - aligned;
+	list_push_back(&freelist, &(newFreeBlock->elem));
+
+	
+
+	return rtrn;
+	//return blk->payload;
+}
+
+/*
+ * mm_free - Freeing a block does nothing.
+ */
+void mm_free(void *ptr)
+{
+	if (ptr == NULL)
+		return;
+	ptr -= sizeof(struct allocated_block_header);
+	struct allocated_block_header *header = (struct allocated_block_header *)ptr;
+	allocated_size -= header->size - 2 * sizeof(struct allocated_block_header);
+	ptr += sizeof(struct allocated_block_header);
+	struct list_elem *elements = (struct list_elem *)ptr; 
+	list_push_back(&freelist, elements);
+	
+}
+
+/*
+ * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
+ */
+void *mm_realloc(void *oldptr, size_t size)
+{
+    void *newptr = mm_malloc(size);
+    if (newptr == NULL)
+      return NULL;
+
+    /* Assuming 'oldptr' was a '&payload[0]' in an allocated_block_header,
+     * determine its start as 'oldblk'.  Then its size can be accessed
+     * more easily.
+     */
+    struct allocated_block_header *oldblk;
+    oldblk = oldptr - offsetof(struct allocated_block_header, payload);
+
+    size_t copySize = oldblk->size;
+    if (size < copySize)
+      copySize = size;
+
+    memcpy(newptr, oldptr, copySize);
+    mm_free(oldptr);
+    return newptr;
+}
+
+/**
+this finds the next free block. it is currently a first fit check. should adjust for best fit, 
+so that it doesnt leave one empty cell inbetween and cases such as that. 
+*/
+void *find_next_free(size_t size)
+{
+	struct list_elem *temp;
+	struct free_block *free = NULL;
+	for ( temp = list_begin(&freelist); temp != list_end(&freelist); temp = list_next(temp))
+	{
+		free = list_entry (temp, struct free_block, elem);
+		free -= 8;
+		struct allocated_block_header header = free->head;
+		if (header.size >= size)
+		{
+			free += 8;
+			return free;
+		}
+	}
+	return free;	
+}
+
+/**
+this is only called after it has already been determined that there needs to be coallascing. 
+there should be a check for it before this is called. however, this method is blind to which of the 3
+cases of coalsacing needs to be completed.
+*/
+void coallasce(struct free_block * elem)
+{
+//not sure how to check the heap to make sure that the prev or next addresses in mem are allocated or free
+
+
+
+
+/**
+if (left and right are free)
+else if (left is free)
+else if (right is free)
+*/	
+
+}
+// vim: ts=8

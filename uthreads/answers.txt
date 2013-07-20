@@ -1,0 +1,51 @@
+Part 2
+
+
+1.  1 thread - 8152167
+Created 1 threads, time = 1321657367
+Took 3 seconds
+Thread 0 acquired lock 8152167 many times
+
+2.  
+Created 2 threads, time = 1321657445
+Took 3 seconds
+Thread 0 acquired lock 5197440 many times
+Thread 1 acquired lock 5166409 many times
+
+3. 
+While both of the threads were not identical in the number of times that they were able to lock
+and unlock, they were close.
+
+4. 
+Created 3 threads, time = 1321657608
+Took 3 seconds
+Thread 0 acquired lock 2243727 many times
+Thread 1 acquired lock 2229032 many times
+Thread 2 acquired lock 2234953 many times
+
+Again, while they were not exact, they were close in the number of locks and unlocks.
+
+5. 
+Created 1 threads, time = 1321657894
+Took 3 seconds
+Thread 0 acquired lock 3184388 many times
+
+Created 2 threads, time = 1321657910
+Took 3 seconds
+Thread 0 acquired lock 2114488 many times
+Thread 1 acquired lock 2114481 many times
+
+Created 3 threads, time = 1321657874
+Took 3 seconds
+Thread 0 acquired lock 1607294 many times
+Thread 1 acquired lock 1607295 many times
+Thread 2 acquired lock 1607293 many times
+
+When you restrict the number of courses that the threads can run on then you are limiting their ability.
+It is for that reason that when the threads run on one core the number of times it has the chance to 
+lock and unlock decreases. The amount of decrease is surprising because it does not cut down as much as expected
+when it is restricted. When it is restricted it shows that the locking and unlocking across multiple threads
+diminishes the effect. So the greater the number of threads the less the slow down will be even if the
+treads are forced to run on one core. 
+
+
